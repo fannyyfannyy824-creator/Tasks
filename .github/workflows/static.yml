@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Mini Codeforces</title>
+<style>
+:root {
+    --bg: #0b0b0b;
+    --panel: #111;
+    --border: #2a2a2a;
+    --text: #e0e0e0;
+    --accent: #4fd1c5;
+    --title: #f6ad55;
+    --bad: #fc8181;
+    --good: #68d391;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Consolas, monospace;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: var(--panel);
+    border-right: 2px solid var(--border);
+    padding: 20px;
+}
+
+.sidebar h2 {
+    color: var(--title);
+    margin-bottom: 20px;
+}
+
+.nav-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+
+.nav-item.active, .nav-item:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.content {
+    flex: 1;
+    padding: 30px 50px;
+}
+
+.problem { display: none; }
+.problem.active { display: block; }
+
+h1 { color: var(--title); }
+
+.section { margin: 20px 0; line-height: 1.6; }
+.section-title { color: var(--accent); }
+
+.box {
+    border: 1px solid var(--border);
+    background: #101010;
+    padding: 15px;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    background: #050505;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px;
+    font-family: inherit;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--accent);
+    color: #000;
+}
+
+.output {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px dashed var(--border);
+    white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<div class="sidebar">
+    <h2>PROBLEMS</h2>
+    <div class="nav-item active" onclick="show(1)">A. Недовольные зрители</div>
+    <div class="nav-item" onclick="show(2)">B. Отжимания (префикс)</div>
+</div>
+
+<div class="content">
+
+<!-- PROBLEM A -->
+<div class="problem active" id="p1">
+<h1>A. Недовольные зрители</h1>
+
+<div class="section">
+<div class="section-title">Условие</div>
+Дано число <b>n</b> — количество зрителей, сидящих в ряд.  
+Каждому зрителю соответствует номер его места.  
+Также задано число <b>k</b> — допустимый предел недовольства.
+</div>
+
+<div class="section">
+<div class="section-title">Недовольство зрителя</div>
+<ul>
+<li>
+Если зритель не с краю, он считается недовольным,
+если оба его соседа сидят на местах с номерами меньше, чем у него.
+</li>
+<li>
+Если зритель сидит с краю, он считается недовольным,
+если номер места его соседа меньше его собственного.
+</li>
+</ul>
+</div>
+
+<div class="section">
+<div class="section-title">Проверка рассадки</div>
+Введите:
+<pre>
+n k
+a1 a2 ... an
+</pre>
+где <code>a</code> — номера мест в порядке рассадки.
+</div>
+
+<textarea id="a_input" placeholder="Пример:
+5 2
+3 1 5 2 4"></textarea>
+<button onclick="checkA()">Check</button>
+<div class="output" id="a_out"></div>
+</div>
+
+<!-- PROBLEM B -->
+<div class="problem" id="p2">
+<h1>B. Отжимания по дням (префиксные суммы)</h1>
+
+<div class="section">
+<div class="section-title">Условие</div>
+Дано число <b>n</b> — количество записей.  
+Каждая запись содержит два числа <b>d</b> и <b>c</b>.
+</div>
+
+<div class="section">
+Число <b>d</b> (1 ≤ d ≤ 7) — номер дня.  
+Число <b>c</b> — <b>общее количество отжиманий,
+выполненных за все дни с 1-го по d-й включительно</b>.
+</div>
+
+<div class="section">
+Гарантируется, что данные корректны и неубывающие по дням.
+</div>
+
+<div class="box">
+<b>Требуется:</b><br>
+Восстановить и вывести <b>7 чисел</b> —
+количество отжиманий, выполненных в каждый день отдельно.
+</div>
+
+<textarea id="b_input" placeholder="Пример:
+3
+1 10
+3 25
+7 60"></textarea>
+<button onclick="checkB()">Run</button>
+<div class="output" id="b_out"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+function show(n) {
+    document.querySelectorAll('.problem').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('p'+n).classList.add('active');
+    document.querySelectorAll('.nav-item')[n-1].classList.add('active');
+}
+
+function checkA() {
+    const lines = document.getElementById('a_input').value.trim().split('\n');
+    const [n, k] = lines[0].split(' ').map(Number);
+    const a = lines[1].split(' ').map(Number);
+    let bad = 0;
+
+    for (let i = 0; i < n; i++) {
+        if (i === 0) {
+            if (a[1] < a[0]) bad++;
+        } else if (i === n - 1) {
+            if (a[n-2] < a[n-1]) bad++;
+        } else {
+            if (a[i-1] < a[i] && a[i+1] < a[i]) bad++;
+        }
+    }
+
+    document.getElementById('a_out').textContent =
+        bad <= k ? `OK (недовольных: ${bad})`
+                 : `WRONG (недовольных: ${bad})`;
+}
+
+function checkB() {
+    const lines = document.getElementById('b_input').value.trim().split('\n');
+    const n = parseInt(lines[0]);
+    const pref = Array(7).fill(0);
+
+    for (let i = 1; i <= n; i++) {
+        const [d, c] = lines[i].split(' ').map(Number);
+        pref[d-1] = c;
+    }
+
+    for (let i = 1; i < 7; i++) {
+        pref[i] = Math.max(pref[i], pref[i-1]);
+    }
+
+    const res = [];
+    res[0] = pref[0];
+    for (let i = 1; i < 7; i++) {
+        res[i] = pref[i] - pref[i-1];
+    }
+
+    document.getElementById('b_out').textContent = res.join(' ');
+}
+</script>
+
+</body>
+</html>
